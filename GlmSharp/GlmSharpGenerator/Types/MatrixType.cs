@@ -109,7 +109,7 @@ namespace GlmSharpGenerator.Types
                 yield return "m" + x + row;
         }
 
-        public string FieldFor(int f) => $"m{f/Rows}{f%Rows}";
+        public string FieldFor(int f) => $"m{f / Rows}{f % Rows}";
 
         public string ArgOf(int c) => "xyzw"[c].ToString();
 
@@ -219,7 +219,7 @@ namespace GlmSharpGenerator.Types
                 yield return new Property("Column" + col, colVecType)
                 {
                     GetterLine = $"return {Construct(colVecType, Column(col))};",
-                    Setter = Column(col).Select((f,i) => $"{f} = value.{ArgOf(i)};"),
+                    Setter = Column(col).Select((f, i) => $"{f} = value.{ArgOf(i)};"),
                     Comment = $"Gets or sets the column nr {col}"
                 };
             // Rows
@@ -227,7 +227,7 @@ namespace GlmSharpGenerator.Types
                 yield return new Property("Row" + row, rowVecType)
                 {
                     GetterLine = $"return {Construct(rowVecType, Row(row))};",
-                    Setter = Row(row).Select((f,i) => $"{f} = value.{ArgOf(i)};"),
+                    Setter = Row(row).Select((f, i) => $"{f} = value.{ArgOf(i)};"),
                     Comment = $"Gets or sets the row nr {row}"
                 };
 
@@ -521,9 +521,17 @@ namespace GlmSharpGenerator.Types
                         var rhsType = BaseName + (rhsRows == rhsColumns ? rhsColumns.ToString() : rhsColumns + "x" + rhsRows) + GenericSuffix;
                         var resultType = BaseName + (lhsRows == rhsColumns ? rhsColumns.ToString() : rhsColumns + "x" + lhsRows) + GenericSuffix;
                         foreach (var line in $"Executes a matrix-matrix-multiplication {NameThat} * {rhsType} -> {resultType}.".AsComment()) yield return line;
+                        //yield return string.Format("public static {0} operator*({1} lhs, {2} rhs) => new {0}({3});",
+                        //    resultType, NameThat, rhsType,
+                        //    FieldsHelper(lhsRows, rhsColumns).Select(f => lhsCols.ForIndexUpTo(i => string.Format("lhs.m{1}{0} * rhs.m{2}{1}", f[1], i, f[2])).Aggregated(" + ")).CommaSeparated());
+
                         yield return string.Format("public static {0} operator*({1} lhs, {2} rhs) => new {0}({3});",
                             resultType, NameThat, rhsType,
-                            FieldsHelper(lhsRows, rhsColumns).Select(f => lhsCols.ForIndexUpTo(i => string.Format("lhs.m{1}{0} * rhs.m{2}{1}", f[1], i, f[2])).Aggregated(" + ")).CommaSeparated());
+                            FieldsHelper(rhsColumns, lhsRows).Select(f => lhsCols.ForIndexUpTo(j => string.Format("lhs.m{1}{2} * rhs.m{0}{1}", f[1], j, f[2])).Aggregated(" + ")).CommaSeparated());
+                        //                                                                                               j  i          k  j    |     |  |
+                        //                                                                                                                     |     |  Row in Ergebnis (i)
+                        //                                                                                                                     |     j = 0..N, N == spalten links == zeilen rechts
+                        //                                                                                                                     Col in Ergebnis (k)
                     }
 
                     // matrix-vector-multiplication
