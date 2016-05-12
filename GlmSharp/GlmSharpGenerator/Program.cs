@@ -33,7 +33,7 @@ namespace GlmSharpGenerator
             }
 
             Console.WriteLine("GlmSharp Generator");
-            foreach (var version in new[] { 45, 20 })
+            foreach (var version in new[] { 45 })
             {
                 string path;
                 var testpath = "";
@@ -60,12 +60,14 @@ namespace GlmSharpGenerator
                     // generate lib code
                     {
                         var filename = type.PathOf(path);
+                        File.Delete(filename);
                         new FileInfo(filename).Directory?.Create();
                         if (type.CSharpFile.WriteToFileIfChanged(filename))
                             Console.WriteLine("    CHANGED " + filename);
                     }
                     {
                         var filename = type.GlmPathOf(path);
+                        File.Delete(filename);
                         new FileInfo(filename).Directory?.Create();
                         if (type.GlmSharpFile.WriteToFileIfChanged(filename))
                             Console.WriteLine("    CHANGED " + filename);
@@ -75,6 +77,7 @@ namespace GlmSharpGenerator
                     if (!string.IsNullOrEmpty(testpath))
                     {
                         var filename = type.TestPathOf(Path.Combine(testpath, "Generated"));
+                        File.Delete(filename);
                         new FileInfo(filename).Directory?.Create();
                         if (type.TestFile.WriteToFileIfChanged(filename))
                             Console.WriteLine("    CHANGED " + filename);

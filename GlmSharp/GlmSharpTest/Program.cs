@@ -13,6 +13,9 @@ namespace GlmSharpTest
     {
         static void Main(string[] args)
         {
+            mat4 t = mat4.Translate(0, 0, 2);
+            var tt = t * t;
+
             vec4 v = new vec4();
             vec3 vv = v.swizzle.zxy;
             vv = vv.swizzle.bgr;
